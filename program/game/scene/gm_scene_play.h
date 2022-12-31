@@ -12,6 +12,7 @@ public:
 
 	GmCamera* camera_ = nullptr; //ゲームカメラ
 	GameObj* player_ = nullptr; //プレイヤーを示すポインタ
+	GameObj* home_ = nullptr; //拠点を示すポインタ
 
 	int backGround_ = 0; //マップ背景
 	dxe::Mesh* field_; //マップ床
@@ -54,6 +55,7 @@ public:
 	enum {
 		eNone = -1,
 		ePlayer,
+		eHome,
 		eBullet,
 		eEnemy,
 		eCloud
@@ -131,6 +133,17 @@ public:
 	const float SPRITE_W_ = 40; //画像サイズ
 	const float SPRITE_H_ = 25;
 	const float SIZE_ = 30; //当たり判定の大きさ
+};
+
+class Home :public GameObj {
+public:
+	Home(ScenePlay* scene);
+	~Home() {}
+	void update(float delta_time) override;
+
+	const float SPRITE_W_ = 50; //画像サイズ
+	const float SPRITE_H_ = 50;
+	const float SIZE_ = 50; //当たり判定の大きさ
 };
 
 //------------------------------------------------------------------

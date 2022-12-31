@@ -22,6 +22,8 @@ void ScenePlay::initialzie() {
 	camera_->far_ = 2000.0f;
 	//プレイヤー生成
 	player_ = objects_.emplace_back(new Player(this));
+	//拠点を生成
+	home_ = objects_.emplace_back(new Home(this));
 	//ステージを生成
 	field_ = dxe::Mesh::CreateDisk(FIELD_R_ * 1.1f);
 	field_->setTexture(dxe::Texture::CreateFromFile("graphics/ground.jpg"));
@@ -388,7 +390,7 @@ Cloud::Cloud(ScenePlay* scene) {
 	size_ = SIZE_;
 	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
 	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/cloud.png"));
-	mesh_->pos_ = { 0,0,50 };
+	mesh_->pos_ = { 0,0,0 };
 }
 
 void Cloud::update(float delta_time) {
@@ -397,6 +399,23 @@ void Cloud::update(float delta_time) {
 	dir.normalize();
 	mesh_->rot_q_.slerp(tnl::Quaternion::LookAtAxisY(mesh_->pos_, mesh_->pos_ + dir), 0.3f);
 }
+
+Home::Home(ScenePlay* scene) {
+	tag_ = GameObj::eHome;
+	scene_ = scene;
+	size_ = SIZE_;
+	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
+	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/bed.png"));
+	mesh_->pos_ = { 0,0,0 };
+}
+
+void Home::update(float delta_time) {
+	tnl::Vector3 dir;
+	dir = mesh_->pos_ - scene_->camera_->pos_;
+	dir.normalize();
+	mesh_->rot_q_.slerp(tnl::Quaternion::LookAtAxisY(mesh_->pos_, mesh_->pos_ + dir), 0.3f);
+}
+
 
 //------------------------------------------------------------------
 //
