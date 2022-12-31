@@ -59,7 +59,9 @@ void ScenePlay::update(float delta_time)
 	//
 
 	//全てのオブジェクトのアップデート
-	for (auto object : objects_) object->update(delta_time);
+	for (auto object : objects_) {
+		if(object->moving_)	object->update(delta_time);
+	}
 	//オブジェクトの生存フラグがfalseになったらデリート
 	auto it_object = objects_.begin();
 	while (it_object != objects_.end()) {
@@ -172,6 +174,8 @@ void ScenePlay::render()
 	}
 
 	ui_->render();
+
+	DrawStringEx(100, 100, 0, "%d", stage_->enemyStock_);
 }
 
 //------------------------------------------------------------------
@@ -455,10 +459,27 @@ void StageBase::RandomPop(int num) {
 	float x = scene_->FIELD_R_ * cos(th);
 	float y = scene_->FIELD_R_ * sin(th);
 	for (int i = 0; i < num; ++i) {
-		enemy_pop_ = rand() % 100 - 50;
+		enemy_pop_ = rand() % 200 - 100;
 		x = x + enemy_pop_;
 		y = y + enemy_pop_;
-		scene_->objects_.emplace_back(new EnemySprite(scene_, { x,0,y }));
+		for (auto enemy : scene_->objects_) {
+			if (enemy->tag_ != GameObj::eEnemy) continue;
+			if (enemy->id_ != enemyStock_) continue;
+			enemy->sprite_->pos_ = { x,0,y };
+			enemy->moving_ = true;
+			enemyStock_--;
+		}
+	}
+}
+
+Stage1::Stage1(ScenePlay* scene) {
+	scene_ = scene;
+	stageNum_ = 1;
+	for (int i = 0; i < ENEMY_NUM_; ++i) {
+		scene_->objects_.emplace_back(new EnemySprite(scene_, { 0,-100,0 }))->moving_ = false;
+		scene_->objects_.back()->update(0);
+		enemyStock_++;
+		scene_->objects_.back()->id_ = enemyStock_;
 	}
 }
 
@@ -469,7 +490,7 @@ void Stage1::update(float delta_time) {
 		time_--;
 	}
 
-	if (time_ % 5 == 1 && elapsed_ == 0) {
+	if (time_ % 6 == 1 && elapsed_ == 0) {
 		RandomPop(3);
 	}
 }

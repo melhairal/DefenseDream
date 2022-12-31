@@ -1,1 +1,2 @@
 C:\Users\vantan\Documents\ゲーム制作\審査会2回目\Debug\dx_game.exe
+C:\Users\vantan\Documents\GitHub\DefenseDream\Debug\dx_game.exe
