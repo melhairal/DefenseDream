@@ -120,11 +120,11 @@ void ScenePlay::update(float delta_time)
 	// その他(デバッグ等)
 	//
 
-	//雲(壁)の衝突判定
-	for (auto cloud : objects_) {
-		if (cloud->tag_ != GameObj::eCloud) continue;
-		if (tnl::IsIntersectAABB(player_->sprite_->pos_, { player_->size_,player_->size_,player_->size_ }, cloud->mesh_->pos_, { cloud->size_,cloud->size_,cloud->size_ })) {
-			tnl::GetCorrectPositionIntersectAABB(player_->prev_pos_, { player_->size_,player_->size_,player_->size_ }, cloud->mesh_->pos_, { cloud->size_,cloud->size_,cloud->size_ }, player_->sprite_->pos_);
+	//雲(壁)/拠点の衝突判定
+	for (auto object : objects_) {
+		if (object->tag_ != GameObj::eCloud && object->tag_ != GameObj::eHome) continue;
+		if (tnl::IsIntersectAABB(player_->sprite_->pos_, { player_->size_,player_->size_,player_->size_ }, object->mesh_->pos_, { object->size_,object->size_,object->size_ })) {
+			tnl::GetCorrectPositionIntersectAABB(player_->prev_pos_, { player_->size_,player_->size_,player_->size_ }, object->mesh_->pos_, { object->size_,object->size_,object->size_ }, player_->sprite_->pos_);
 		}
 	}
 
@@ -153,6 +153,11 @@ void ScenePlay::update(float delta_time)
 				}
 			}
 		}
+	}
+
+	//攻撃生成テスト用
+	if (tnl::Input::IsKeyDownTrigger(eKeys::KB_C)) {
+		objects_.emplace_back(new Combo1(this));
 	}
 
 	//シーン切り替え
@@ -261,7 +266,7 @@ void Player::update(float delta_time) {
 		sprite_->rot_.slerp(tnl::Quaternion::LookAtAxisY(sprite_->pos_, hit), 0.3f);
 		mesh_->rot_q_ = tnl::Quaternion::RotationAxis({ 1, 0, 0 }, tnl::ToRadian(90)) * sprite_->rot_;
 	}
-	tnl::Vector3 looking_ = hit - sprite_->pos_;
+	looking_ = hit - sprite_->pos_;
 	looking_.y = 0;
 	looking_.normalize();
 	//------------------------------------------------------------------
@@ -305,13 +310,13 @@ Bullet::Bullet(const tnl::Vector3& pos, const tnl::Vector3& dir) {
 	mesh_ = dxe::Mesh::CreateSphere(SIZE_);
 	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/test.jpg"));
 	mesh_->pos_ = pos;
-	dir_ = dir;
+	looking_ = dir;
 }
 
 void Bullet::update(float delta_time)
 {
 	//飛んでいく処理
-	mesh_->pos_ += dir_ * SPEED_;
+	mesh_->pos_ += looking_ * SPEED_;
 	distance_ += SPEED_;
 	//一定距離進んだら消える
 	if (distance_ > RANGE_) alive_ = false;
@@ -329,9 +334,9 @@ Enemy::Enemy(ScenePlay* scene, const tnl::Vector3& pos) {
 void Enemy::update(float delta_time)
 {
 	//プレイヤーを追いかける
-	tnl::Vector3 dir = scene_->player_->sprite_->pos_ - mesh_->pos_;
-	dir.normalize();
-	mesh_->pos_ += dir * SPEED_;
+	looking_ = scene_->player_->sprite_->pos_ - mesh_->pos_;
+	looking_.normalize();
+	mesh_->pos_ += looking_ * SPEED_;
 	//HPが0になったら消える
 	if (hp_ <= 0) {
 		hp_ = 0;
@@ -350,6 +355,7 @@ EnemySprite::EnemySprite(ScenePlay* scene, const tnl::Vector3& pos) {
 	sprite_->regist(SPRITE_W_, SPRITE_H_, "walk_right", "graphics/c1_anim_right.png", tnl::SeekUnit::ePlayMode::REPEAT, 1.0f, 4, SPRITE_H_, 0);
 	sprite_->setCurrentAnim("walk_front");
 	sprite_->pos_ = pos;
+	target_ = scene_->home_;
 };
 
 void EnemySprite::update(float delta_time) {
@@ -364,8 +370,11 @@ void EnemySprite::update(float delta_time) {
 		"walk_back", "walk_right", "walk_front", "walk_left"
 	};
 	sprite_->setCurrentAnim(anim_names[t]);
-	//プレイヤーを追いかける
-	tnl::Vector3 dir = scene_->player_->sprite_->pos_ - sprite_->pos_;
+	//ターゲットを追いかける
+	if (hp_ != hp_max_) target_ = scene_->player_; //ターゲットの切り替え
+	tnl::Vector3 dir;
+	if (target_ == scene_->player_) dir = scene_->player_->sprite_->pos_ - sprite_->pos_;
+	if (target_ == scene_->home_) dir = scene_->home_->mesh_->pos_ - sprite_->pos_;
 	if (dir.length() > 20) {
 		dir.normalize();
 		sprite_->pos_ += dir * SPEED_;
@@ -416,6 +425,41 @@ void Home::update(float delta_time) {
 	mesh_->rot_q_.slerp(tnl::Quaternion::LookAtAxisY(mesh_->pos_, mesh_->pos_ + dir), 0.3f);
 }
 
+//攻撃コンボ
+Combo1::Combo1(ScenePlay* scene) {
+	tag_ = GameObj::eAttack;
+	scene_ = scene;
+	size_ = SIZE_;
+	
+	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
+	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/test.jpg"));
+	looking_ = scene_->player_->looking_;
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * 100.0f;
+	float th = std::atan(looking_.x / looking_.z);
+	tnl::Vector3 qy = { looking_.x, 1, looking_.z };
+	tnl::Vector3 rot = looking_.cross(qy);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis({ 0,1,0 }, th);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis(rot, tnl::ToRadian(90));
+
+	/*
+	sprite_ = new AnimSprite3D(scene_->camera_);
+	sprite_->regist(SPRITE_W_, SPRITE_H_, "combo1", "graphics/combo/combo1-1.png", tnl::SeekUnit::ePlayMode::REPEAT, 0.5f, 8, IMAGE_H_, 0);
+	sprite_->setCurrentAnim("combo1");
+	looking_ = scene_->player_->looking_;
+	sprite_->pos_ = scene_->player_->sprite_->pos_ + looking_ * 100.0f;
+	float th = std::atan(looking_.x / looking_.z);
+	tnl::Vector3 qy = { looking_.x, 1, looking_.z };
+	tnl::Vector3 rot = looking_.cross(qy);
+	sprite_->rot_ *= tnl::Quaternion::RotationAxis({ 0,1,0 }, th);
+	sprite_->rot_ *= tnl::Quaternion::RotationAxis(rot, tnl::ToRadian(90));
+	*/
+};
+
+void Combo1::update(float delta_time) {
+	
+	
+	//sprite_->update(delta_time);
+}
 
 //------------------------------------------------------------------
 //

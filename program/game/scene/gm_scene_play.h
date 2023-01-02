@@ -58,7 +58,8 @@ public:
 		eHome,
 		eBullet,
 		eEnemy,
-		eCloud
+		eCloud,
+		eAttack
 	};
 	int tag_ = GameObj::eNone; //オブジェクトを識別するタグ
 	int id_ = -1; //同じタグ内での識別用の番号
@@ -72,6 +73,7 @@ public:
 	tnl::Vector3 prev_pos_ = { 0,0,0 }; //補正用座標
 	int hp_max_ = 100; //最大HP
 	int hp_ = 100; //HP
+	tnl::Vector3 looking_; //見ている方向のベクトル
 };
 
 class Player :public GameObj {
@@ -99,7 +101,6 @@ public:
 	const float SPEED_ = 4; //弾速度
 	const float RANGE_ = 300; //射程距離
 	float distance_ = 0; //どのくらい飛んだか
-	tnl::Vector3 dir_; //発射方向
 };
 
 class Enemy :public GameObj {
@@ -110,6 +111,8 @@ public:
 
 	const float SIZE_ = 30; //当たり判定の大きさ
 	const float SPEED_ = 2; //移動速度
+
+	GameObj* target_ = nullptr;
 };
 
 class EnemySprite :public GameObj {
@@ -122,6 +125,8 @@ public:
 	const float SPRITE_H_ = 48;
 	const float SIZE_ = 30; //当たり判定の大きさ
 	const float SPEED_ = 1; //移動速度
+
+	GameObj* target_ = nullptr;
 };
 
 class Cloud :public GameObj {
@@ -144,6 +149,21 @@ public:
 	const float SPRITE_W_ = 50; //画像サイズ
 	const float SPRITE_H_ = 50;
 	const float SIZE_ = 50; //当たり判定の大きさ
+};
+
+//攻撃用コンボ
+class Combo1 :public GameObj {
+public:
+	Combo1(ScenePlay* scene);
+	~Combo1(){}
+	void update(float delta_time) override;
+
+	const float SPRITE_W_ = 60; //画像サイズ
+	const float SPRITE_H_ = 60;
+	const float IMAGE_H_ = 192;
+	const float SIZE_ = 50; //当たり判定の大きさ
+	const float FRAME_ = 8; //総フレーム数
+
 };
 
 //------------------------------------------------------------------
