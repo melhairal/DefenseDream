@@ -52,6 +52,8 @@ public:
 	}
 	virtual void update(float delta_time) {}
 
+	void Attack(int damage); //ダメージ判定用関数
+
 	enum {
 		eNone = -1,
 		ePlayer,
@@ -89,6 +91,11 @@ public:
 	const float SPRINT_ = 5;
 
 	int ballet_interval_ = 0; //弾の発射間隔
+
+	int combo_counter_ = 0; //今のコンボの段階
+	int combo_timer_ = 0; //コンボ受付時間
+	const int COMBO_RECEPTION_ = 50; //コンボ受付猶予
+	const int COMBO_INTERVAL_ = 25; //コンボ間隔
 };
 
 class Bullet :public GameObj {
@@ -160,9 +167,41 @@ public:
 
 	const float SPRITE_W_ = 120; //画像サイズ
 	const float SPRITE_H_ = 120;
-	const float IMAGE_H_ = 192;
 	const float DIS_ = 70; //プレイヤーからの生成位置
 	const float SIZE_ = 50; //当たり判定の大きさ
+	const int DAMAGE_ = 20; //攻撃力
+	const int FRAME_TIME_ = 4; //1フレームの再生時間
+	int elapsed_ = 0;
+	int frame_ = 0;
+};
+
+class Combo2 :public GameObj {
+public:
+	Combo2(ScenePlay* scene);
+	~Combo2() {}
+	void update(float delta_time) override;
+
+	const float SPRITE_W_ = 120; //画像サイズ
+	const float SPRITE_H_ = 120;
+	const float DIS_ = 70; //プレイヤーからの生成位置
+	const float SIZE_ = 50; //当たり判定の大きさ
+	const int DAMAGE_ = 40; //攻撃力
+	const int FRAME_TIME_ = 4; //1フレームの再生時間
+	int elapsed_ = 0;
+	int frame_ = 0;
+};
+
+class Combo3 :public GameObj {
+public:
+	Combo3(ScenePlay* scene);
+	~Combo3() {}
+	void update(float delta_time) override;
+
+	const float SPRITE_W_ = 360; //画像サイズ
+	const float SPRITE_H_ = 120;
+	const float DIS_ = 70; //プレイヤーからの生成位置
+	const float SIZE_ = 100; //当たり判定の大きさ
+	const int DAMAGE_ = 60; //攻撃力
 	const int FRAME_TIME_ = 4; //1フレームの再生時間
 	int elapsed_ = 0;
 	int frame_ = 0;
