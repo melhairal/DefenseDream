@@ -427,38 +427,68 @@ void Home::update(float delta_time) {
 
 //攻撃コンボ
 Combo1::Combo1(ScenePlay* scene) {
+	//基本パラメータ
 	tag_ = GameObj::eAttack;
 	scene_ = scene;
 	size_ = SIZE_;
-	
 	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
-	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/test.jpg"));
+	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_001.png"));
+	
+	//座標・角度の設定
 	looking_ = scene_->player_->looking_;
-	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * 100.0f;
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * DIS_;
 	float th = std::atan(looking_.x / looking_.z);
 	tnl::Vector3 qy = { looking_.x, 1, looking_.z };
-	tnl::Vector3 rot = looking_.cross(qy);
+	tnl::Vector3 rot = -looking_.cross(qy);
 	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis({ 0,1,0 }, th);
 	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis(rot, tnl::ToRadian(90));
-
-	/*
-	sprite_ = new AnimSprite3D(scene_->camera_);
-	sprite_->regist(SPRITE_W_, SPRITE_H_, "combo1", "graphics/combo/combo1-1.png", tnl::SeekUnit::ePlayMode::REPEAT, 0.5f, 8, IMAGE_H_, 0);
-	sprite_->setCurrentAnim("combo1");
-	looking_ = scene_->player_->looking_;
-	sprite_->pos_ = scene_->player_->sprite_->pos_ + looking_ * 100.0f;
-	float th = std::atan(looking_.x / looking_.z);
-	tnl::Vector3 qy = { looking_.x, 1, looking_.z };
-	tnl::Vector3 rot = looking_.cross(qy);
-	sprite_->rot_ *= tnl::Quaternion::RotationAxis({ 0,1,0 }, th);
-	sprite_->rot_ *= tnl::Quaternion::RotationAxis(rot, tnl::ToRadian(90));
-	*/
 };
 
 void Combo1::update(float delta_time) {
-	
-	
-	//sprite_->update(delta_time);
+	elapsed_++;
+	if (elapsed_ > FRAME_TIME_) {
+		elapsed_ = 0;
+		frame_++;
+		switch (frame_) {
+		case 1:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_002.png"));
+			break;
+		case 2:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_003.png"));
+			break;
+		case 3:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_004.png"));
+			break;
+		case 4:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_005.png"));
+			break;
+		case 5:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_006.png"));
+			for (auto enemy : scene_->objects_) {
+			if (enemy->tag_ != GameObj::eEnemy) continue;
+				if (enemy->mesh_ != nullptr) {
+					if (tnl::IsIntersectSphere(enemy->mesh_->pos_, enemy->size_, mesh_->pos_, size_)) {
+						enemy->hp_ -= 30;
+					}
+				}
+				if (enemy->sprite_ != nullptr) {
+					if (tnl::IsIntersectSphere(enemy->sprite_->pos_, enemy->size_, mesh_->pos_, size_)) {
+						enemy->hp_ -= 30;
+					}
+				}
+			}
+			break;
+		case 6:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_007.png"));
+			break;
+		case 7:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_008.png"));
+			break;
+		case 8:
+			alive_ = false;
+			break;
+		}
+	}
 }
 
 //------------------------------------------------------------------

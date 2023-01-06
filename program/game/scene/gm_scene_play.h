@@ -158,12 +158,14 @@ public:
 	~Combo1(){}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 60; //画像サイズ
-	const float SPRITE_H_ = 60;
+	const float SPRITE_W_ = 120; //画像サイズ
+	const float SPRITE_H_ = 120;
 	const float IMAGE_H_ = 192;
+	const float DIS_ = 70; //プレイヤーからの生成位置
 	const float SIZE_ = 50; //当たり判定の大きさ
-	const float FRAME_ = 8; //総フレーム数
-
+	const int FRAME_TIME_ = 4; //1フレームの再生時間
+	int elapsed_ = 0;
+	int frame_ = 0;
 };
 
 //------------------------------------------------------------------
