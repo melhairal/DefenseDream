@@ -134,7 +134,9 @@ public:
 	const float SPRITE_W_ = 32; //画像サイズ
 	const float SPRITE_H_ = 48;
 	const float SIZE_ = 30; //当たり判定の大きさ
-	const float SPEED_ = 1; //移動速度
+	const float SPEED_ = 2; //移動速度
+	int prev_hp_ = 0; //被弾判定用
+	int damaged_t_ = 0;
 
 	GameObj* target_ = nullptr;
 };
@@ -282,7 +284,23 @@ public:
 	int frame_ = 0;
 };
 
+//接近コンボ
+class ComboS1 :public GameObj {
+public:
+	ComboS1(ScenePlay* scene);
+	~ComboS1() {}
+	void update(float delta_time) override;
 
+	const float SPRITE_W_ = 320; //画像サイズ
+	const float SPRITE_H_ = 240;
+	const float DIS_ = 120; //プレイヤーからの生成位置
+	const float SIZE_ = 100; //当たり判定の大きさ
+	const int DAMAGE_ = 60; //攻撃力
+	const int MAGIC_ = 80; //消費魔力
+	const int FRAME_TIME_ = 1; //1フレームの再生時間
+	int elapsed_ = 0;
+	int frame_ = 0;
+};
 
 //------------------------------------------------------------------
 //
