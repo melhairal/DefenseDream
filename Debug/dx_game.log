@@ -1,8 +1,8 @@
 ﻿  gm_scene_play.cpp
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(245,43): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(247,47): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(248,49): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(253,40): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(322,43): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(324,47): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(325,49): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(330,40): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
 C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(35,11): warning C4244: '初期化中': 'double' から 'float' への変換です。データが失われる可能性があります。
 C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(36,11): warning C4244: '初期化中': 'double' から 'float' への変換です。データが失われる可能性があります。
 C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(194,124): warning C4244: '引数': 'const float' から 'const uint32_t' への変換です。データが失われる可能性があります。
@@ -14,14 +14,22 @@ C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.c
 C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(242,29): warning C4244: '引数': 'int' から 'const float' への変換です。データが失われる可能性があります。
 C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(253,8): warning C4244: '引数': 'float' から 'const int' への変換です。データが失われる可能性があります。
 C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(252,6): warning C4244: '引数': 'float' から 'const int' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(380,124): warning C4244: '引数': 'const float' から 'const uint32_t' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(381,125): warning C4244: '引数': 'const float' から 'const uint32_t' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(382,125): warning C4244: '引数': 'const float' から 'const uint32_t' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(383,127): warning C4244: '引数': 'const float' から 'const uint32_t' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(709,15): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(710,15): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(711,15): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(712,15): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(726,10): warning C4244: '初期化中': 'double' から 'float' への変換です。データが失われる可能性があります。
-C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(727,10): warning C4244: '初期化中': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(419,124): warning C4244: '引数': 'const float' から 'const uint32_t' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(420,125): warning C4244: '引数': 'const float' から 'const uint32_t' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(421,125): warning C4244: '引数': 'const float' から 'const uint32_t' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(422,127): warning C4244: '引数': 'const float' から 'const uint32_t' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(1115,15): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(1116,15): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(1117,15): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(1118,15): warning C4244: '初期化中': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(1132,10): warning C4244: '初期化中': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.cpp(1133,10): warning C4244: '初期化中': 'double' から 'float' への変換です。データが失われる可能性があります。
+  gm_scene_title.cpp
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(52,1): warning C4150: 'AnimSprite3D' 型を削除するため delete 演算子が呼び出されましたが、定義がありません。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(4): message : 'AnimSprite3D' の宣言を確認してください
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(322,43): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(324,47): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(325,49): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
+C:\Users\vantan\Documents\GitHub\DefenseDream\program\game\scene\gm_scene_play.h(330,40): warning C4244: '初期化中': 'float' から 'const int' への変換です。データが失われる可能性があります。
+  コードを生成中...
   dx_game.vcxproj -> C:\Users\vantan\Documents\GitHub\DefenseDream\Debug\dx_game.exe

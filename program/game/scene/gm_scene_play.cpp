@@ -240,8 +240,8 @@ void Player::update(float delta_time) {
 		move_v.normalize();
 		prev_pos_ = sprite_->pos_;
 		sprite_->pos_ += move_v * speed;
-		mesh_->pos_ = { sprite_->pos_.x, sprite_->pos_.y - SPRITE_H_ / 2, sprite_->pos_.z };
 	}
+	mesh_->pos_ = { sprite_->pos_.x, sprite_->pos_.y - SPRITE_H_ / 2, sprite_->pos_.z };
 	//------------------------------------------------------------------
 	//
 	// マウスポインタ制御
@@ -284,7 +284,7 @@ void Player::update(float delta_time) {
 	}
 
 	//コンボ（遠隔）
-	if (tnl::Input::IsKeyDownTrigger(eKeys::KB_C)) {
+	if (tnl::Input::IsKeyDownTrigger(eKeys::KB_C) && comboM_counter_ == 0) {
 		switch (combo_counter_) {
 		case 0:
 			scene_->objects_.emplace_back(new Combo1(scene_));
@@ -315,18 +315,57 @@ void Player::update(float delta_time) {
 		}
 	}
 
+	//コンボ（近接）
+	if (tnl::Input::IsKeyDownTrigger(eKeys::KB_V) && combo_counter_ == 0) {
+		switch (comboM_counter_) {
+		case 0:
+			scene_->objects_.emplace_back(new ComboM1(scene_));
+			comboM_counter_++;
+			break;
+		case 1:
+			if (comboM_timer_ > COMBO_INTERVAL_) {
+				scene_->objects_.emplace_back(new ComboM2(scene_));
+				comboM_timer_ = 0;
+				comboM_counter_++;
+			}
+			break;
+		case 2:
+			if (comboM_timer_ > COMBO_INTERVAL_) {
+				scene_->objects_.emplace_back(new ComboM3(scene_));
+				comboM_timer_ = 0;
+				comboM_counter_++;
+			}
+			break;
+		case 3:
+			if (comboM_timer_ > COMBO_INTERVAL_) {
+				scene_->objects_.emplace_back(new ComboM4(scene_));
+				comboM_timer_ = 0;
+				comboM_counter_++;
+			}
+		}
+	}
+
+	if (comboM_counter_ > 0) {
+		comboM_timer_++;
+		if (comboM_timer_ > COMBO_RECEPTION_) {
+			comboM_timer_ = 0;
+			comboM_counter_ = 0;
+		}
+	}
+
+
 	//魔力の自動回復
 	if (scene_->magic_ == scene_->magic_prev_) {
 		scene_->magic_timer_++;
-		if (scene_->magic_timer_ >= 30) {
+		if (scene_->magic_timer_ >= scene_->MAGIC_TIME_) {
 			scene_->magic_++;
-			scene_->magic_timer_ = 30;
+			scene_->magic_timer_ = scene_->MAGIC_TIME_;
 		}
 	}
 	else {
 		scene_->magic_timer_ = 0;
 	}
-	if (scene_->magic_ >= scene_->magic_max_)scene_->magic_ = scene_->magic_max_;
+	if (scene_->magic_ >= scene_->magic_max_) scene_->magic_ = scene_->magic_max_;
 	scene_->magic_prev_ = scene_->magic_;
 
 	sprite_->update(delta_time);
@@ -453,7 +492,7 @@ void Home::update(float delta_time) {
 	mesh_->rot_q_.slerp(tnl::Quaternion::LookAtAxisY(mesh_->pos_, mesh_->pos_ + dir), 0.3f);
 }
 
-//攻撃コンボ
+//範囲コンボ
 Combo1::Combo1(ScenePlay* scene) {
 	//基本パラメータ
 	tag_ = GameObj::eAttack;
@@ -461,6 +500,7 @@ Combo1::Combo1(ScenePlay* scene) {
 	size_ = SIZE_;
 	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
 	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_001.png"));
+	scene_->magic_ -= MAGIC_;
 	
 	//座標・角度の設定
 	looking_ = scene_->player_->looking_;
@@ -514,6 +554,7 @@ Combo2::Combo2(ScenePlay* scene) {
 	size_ = SIZE_;
 	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
 	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/2/2_001.png"));
+	scene_->magic_ -= MAGIC_;
 
 	//座標・角度の設定
 	looking_ = scene_->player_->looking_;
@@ -573,6 +614,7 @@ Combo3::Combo3(ScenePlay* scene) {
 	size_ = SIZE_;
 	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
 	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/3/3_001.png"));
+	scene_->magic_ -= MAGIC_;
 
 	//座標・角度の設定
 	looking_ = scene_->player_->looking_;
@@ -648,6 +690,370 @@ void Combo3::update(float delta_time) {
 		}
 	}
 }
+
+
+//近接コンボ
+ComboM1::ComboM1(ScenePlay* scene) {
+	//基本パラメータ
+	tag_ = GameObj::eAttack;
+	scene_ = scene;
+	size_ = SIZE_;
+	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
+	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_001.png"));
+	scene_->magic_ -= MAGIC_;
+
+	//座標・角度の設定
+	looking_ = scene_->player_->looking_;
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * DIS_;
+	float th = std::atan(looking_.x / looking_.z);
+	tnl::Vector3 qy = { looking_.x, 1, looking_.z };
+	tnl::Vector3 rot = -looking_.cross(qy);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis({ 0,1,0 }, th);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis(rot, tnl::ToRadian(90));
+};
+
+void ComboM1::update(float delta_time) {
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * DIS_;
+	elapsed_++;
+	if (elapsed_ > FRAME_TIME_) {
+		elapsed_ = 0;
+		frame_++;
+		switch (frame_) {
+		case 1:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_002.png"));
+			break;
+		case 2:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_003.png"));
+			break;
+		case 3:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_004.png"));
+			break;
+		case 4:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_005.png"));
+			break;
+		case 5:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_006.png"));
+			Attack(DAMAGE_);
+			break;
+		case 6:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_007.png"));
+			break;
+		case 7:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_008.png"));
+			break;
+		case 8:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_009.png"));
+			break;
+		case 9:
+			alive_ = false;
+			break;
+		}
+	}
+}
+
+ComboM2::ComboM2(ScenePlay* scene) {
+	//基本パラメータ
+	tag_ = GameObj::eAttack;
+	scene_ = scene;
+	size_ = SIZE_;
+	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
+	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m2/2_001.png"));
+	scene_->magic_ -= MAGIC_;
+
+	//座標・角度の設定
+	looking_ = scene_->player_->looking_;
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * DIS_;
+	float th = std::atan(looking_.x / looking_.z);
+	tnl::Vector3 qy = { looking_.x, 1, looking_.z };
+	tnl::Vector3 rot = -looking_.cross(qy);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis({ 0,1,0 }, th);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis(rot, tnl::ToRadian(90));
+};
+
+void ComboM2::update(float delta_time) {
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * DIS_;
+	elapsed_++;
+	if (elapsed_ > FRAME_TIME_) {
+		elapsed_ = 0;
+		frame_++;
+		switch (frame_) {
+		case 1:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m2/2_002.png"));
+			break;
+		case 2:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m2/2_003.png"));
+			break;
+		case 3:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m2/2_004.png"));
+			break;
+		case 4:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m2/2_005.png"));
+			break;
+		case 5:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m2/2_006.png"));
+			Attack(DAMAGE_);
+			break;
+		case 6:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m2/2_007.png"));
+			break;
+		case 7:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m2/2_008.png"));
+			break;
+		case 8:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m2/2_009.png"));
+			break;
+		case 9:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m3/3_001.png"));
+			break;
+		case 10:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m3/3_002.png"));
+			break;
+		case 11:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m3/3_003.png"));
+			break;
+		case 12:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m3/3_004.png"));
+			break;
+		case 13:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m3/3_005.png"));
+			Attack(DAMAGE_);
+			break;
+		case 14:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m3/3_006.png"));
+			break;
+		case 15:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m3/3_007.png"));
+			break;
+		case 16:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m3/3_008.png"));
+			break;
+		case 17:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m3/3_009.png"));
+			break;
+		case 18:
+			alive_ = false;
+			break;
+		}
+	}
+}
+
+ComboM3::ComboM3(ScenePlay* scene) {
+	//基本パラメータ
+	tag_ = GameObj::eAttack;
+	scene_ = scene;
+	size_ = SIZE_;
+	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
+	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_001.png"));
+	scene_->magic_ -= MAGIC_;
+
+	//座標・角度の設定
+	looking_ = scene_->player_->looking_;
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * DIS_;
+	float th = std::atan(looking_.x / looking_.z);
+	tnl::Vector3 qy = { looking_.x, 1, looking_.z };
+	tnl::Vector3 rot = -looking_.cross(qy);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis({ 0,1,0 }, th);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis(rot, tnl::ToRadian(90));
+};
+
+void ComboM3::update(float delta_time) {
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * DIS_;
+	elapsed_++;
+	if (elapsed_ > FRAME_TIME_) {
+		elapsed_ = 0;
+		frame_++;
+		switch (frame_) {
+		case 1:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_002.png"));
+			break;
+		case 2:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_003.png"));
+			break;
+		case 3:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_004.png"));
+			break;
+		case 4:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_005.png"));
+			break;
+		case 5:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_006.png"));
+			Attack(DAMAGE_);
+			break;
+		case 6:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_007.png"));
+			break;
+		case 7:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_008.png"));
+			break;
+		case 8:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_009.png"));
+			break;
+		case 9:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m4/4_001.png"));
+			break;
+		case 10:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m4/4_002.png"));
+			break;
+		case 11:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m4/4_003.png"));
+			break;
+		case 12:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m4/4_004.png"));
+			break;
+		case 13:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m4/4_005.png"));
+			Attack(DAMAGE_);
+			break;
+		case 14:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m4/4_006.png"));
+			break;
+		case 15:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m4/4_007.png"));
+			break;
+		case 16:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m4/4_008.png"));
+			break;
+		case 17:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m4/4_009.png"));
+			break;
+		case 18:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_001.png"));
+			break;
+		case 19:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_002.png"));
+			break;
+		case 20:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_003.png"));
+			break;
+		case 21:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_004.png"));
+			break;
+		case 22:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_005.png"));
+			break;
+		case 23:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_006.png"));
+			Attack(DAMAGE_);
+			break;
+		case 24:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_007.png"));
+			break;
+		case 25:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_008.png"));
+			break;
+		case 26:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m1/1_009.png"));
+			break;
+		case 27:
+			alive_ = false;
+			break;
+		}
+	}
+}
+
+ComboM4::ComboM4(ScenePlay* scene) {
+	//基本パラメータ
+	tag_ = GameObj::eAttack;
+	scene_ = scene;
+	size_ = SIZE_;
+	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
+	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_001.png"));
+	scene_->magic_ -= MAGIC_;
+
+	//座標・角度の設定
+	looking_ = scene_->player_->looking_;
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * DIS_;
+	float th = std::atan(looking_.x / looking_.z);
+	tnl::Vector3 qy = { looking_.x, 1, looking_.z };
+	tnl::Vector3 rot = -looking_.cross(qy);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis({ 0,1,0 }, th);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis(rot, tnl::ToRadian(90));
+};
+
+void ComboM4::update(float delta_time) {
+	mesh_->pos_ = scene_->player_->sprite_->pos_ + looking_ * DIS_;
+	elapsed_++;
+	if (elapsed_ > FRAME_TIME_) {
+		elapsed_ = 0;
+		frame_++;
+		switch (frame_) {
+		case 1:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_002.png"));
+			break;
+		case 2:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_003.png"));
+			break;
+		case 3:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_004.png"));
+			break;
+		case 4:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_005.png"));
+			break;
+		case 5:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_006.png"));
+			Attack(DAMAGE_);
+			break;
+		case 6:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_007.png"));
+			break;
+		case 7:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_008.png"));
+			break;
+		case 8:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_009.png"));
+			Attack(DAMAGE_);
+			break;
+		case 9:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_010.png"));
+			break;
+		case 10:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_011.png"));
+			break;
+		case 11:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_012.png"));
+			Attack(DAMAGE_);
+			break;
+		case 12:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_013.png"));
+			break;
+		case 13:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_014.png"));
+			break;
+		case 14:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_015.png"));
+			Attack(DAMAGE_);
+			break;
+		case 15:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_016.png"));
+			break;
+		case 16:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_017.png"));
+			break;
+		case 17:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_018.png"));
+			break;
+		case 18:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_019.png"));
+			break;
+		case 19:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_020.png"));
+			break;
+		case 20:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_021.png"));
+			break;
+		case 21:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_022.png"));
+			break;
+		case 22:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/m5/5_023.png"));
+			break;
+		case 23:
+			alive_ = false;
+			break;
+		}
+	}
+}
+
 
 void GameObj::Attack(int damage) {
 	for (auto enemy : scene_->objects_) {
