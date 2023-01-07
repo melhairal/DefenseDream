@@ -6,6 +6,7 @@ class AnimSprite3D;
 class GameObj;
 class Ui;
 class StageBase;
+
 class ScenePlay : public SceneBase {
 public:
 	ScenePlay() {}

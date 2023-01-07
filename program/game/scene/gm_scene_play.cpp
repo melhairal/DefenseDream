@@ -6,7 +6,10 @@
 #include "../gm_object.h"
 #include "../gm_ui.h"
 #include "../gm_stage.h"
+#include "../object/gm_object_player.h"
+#include "../object/gm_object_enemy.h"
 #include "../object/gm_object_combo.h"
+#include "../object/gm_object_other.h"
 
 tnl::Quaternion	fix_rot;
 

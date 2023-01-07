@@ -1,5 +1,6 @@
 #include "gm_stage.h"
 #include "gm_object.h"
+#include "object/gm_object_enemy.h"
 #include "gm_camera.h"
 #include "model/gm_anim_sprite3d.h"
 #include "scene/gm_scene_play.h"
