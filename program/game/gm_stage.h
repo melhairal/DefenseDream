@@ -1,3 +1,4 @@
+#pragma once
 #include "../dxlib_ext/dxlib_ext.h"
 class ScenePlay;
 
@@ -7,7 +8,8 @@ public:
 	StageBase() {}
 	virtual ~StageBase() {}
 	virtual void update(float delta_time) {}
-	void RandomPop(int num);
+
+	void RandomPop(int num); //敵をランダムに配置する
 
 	int stageNum_ = 0; //ステージ番号
 	int time_ = 60; //制限時間

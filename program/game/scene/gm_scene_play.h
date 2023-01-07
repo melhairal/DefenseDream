@@ -1,3 +1,4 @@
+#pragma once
 #include "gm_scene_base.h"
 
 class GmCamera;

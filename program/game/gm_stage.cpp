@@ -10,7 +10,7 @@ void StageBase::RandomPop(int num) {
 	float x = scene_->FIELD_R_ * cos(th);
 	float y = scene_->FIELD_R_ * sin(th);
 	for (int i = 0; i < num; ++i) {
-		enemy_pop_ = rand() % 200 - 100;
+		enemy_pop_ = rand() % 400 - 200;
 		x = x + enemy_pop_;
 		y = y + enemy_pop_;
 		for (auto enemy : scene_->objects_) {

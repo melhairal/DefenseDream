@@ -29,6 +29,9 @@
     <Filter Include="program\game\scene">
       <UniqueIdentifier>{36a023e8-05af-4131-819f-285ef87e3f60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="program\game\object">
+      <UniqueIdentifier>{8e89525a-a83d-4be3-b9c2-e103d3dc6f24}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="program\system\sys_main.cpp">
@@ -163,14 +166,17 @@
     <ClCompile Include="program\game\gm_camera.cpp">
       <Filter>program\game</Filter>
     </ClCompile>
-    <ClCompile Include="program\game\gm_object.cpp">
-      <Filter>program\game</Filter>
-    </ClCompile>
     <ClCompile Include="program\game\gm_ui.cpp">
       <Filter>program\game</Filter>
     </ClCompile>
     <ClCompile Include="program\game\gm_stage.cpp">
       <Filter>program\game</Filter>
+    </ClCompile>
+    <ClCompile Include="program\game\gm_object.cpp">
+      <Filter>program\game\object</Filter>
+    </ClCompile>
+    <ClCompile Include="program\game\object\gm_object_combo.cpp">
+      <Filter>program\game\object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -285,14 +291,17 @@
     <ClInclude Include="program\game\gm_camera.h">
       <Filter>program\game</Filter>
     </ClInclude>
-    <ClInclude Include="program\game\gm_object.h">
-      <Filter>program\game</Filter>
-    </ClInclude>
     <ClInclude Include="program\game\gm_ui.h">
       <Filter>program\game</Filter>
     </ClInclude>
     <ClInclude Include="program\game\gm_stage.h">
       <Filter>program\game</Filter>
+    </ClInclude>
+    <ClInclude Include="program\game\gm_object.h">
+      <Filter>program\game\object</Filter>
+    </ClInclude>
+    <ClInclude Include="program\game\object\gm_object_combo.h">
+      <Filter>program\game\object</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
