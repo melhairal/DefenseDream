@@ -137,6 +137,17 @@ public:
 	const int DAMAGE_ = 60; //攻撃力
 	const int MAGIC_ = 80; //消費魔力
 	const int FRAME_TIME_ = 1; //1フレームの再生時間
+
+	std::list<const char> images_; //アニメーションリスト
+	void getImage() {
+		//===================
+		images_.emplace_back("a");
+		images_.emplace_back("a");
+		images_.emplace_back("a");
+		images_.emplace_back("a");
+		images_.emplace_back("a");
+		images_.emplace_back("a");
+	}
 };
 
 // ========== 敵の攻撃 ==========

@@ -29,7 +29,8 @@ public:
 	const int FIELD_R_ = 1000; //フィールドの半径
 	const int CLOUD_DENSITY_ = 200; //雲の密度
 
-	// ==== ゲーム内ステータス ====
+	// ========= ゲーム内ステータス =========
+
 	int home_hp_ = 500; //拠点HP
 	int home_hp_max_ = home_hp_; //拠点最大HP
 
