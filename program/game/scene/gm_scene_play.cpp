@@ -58,6 +58,7 @@ void ScenePlay::update(float delta_time)
 	//
 
 	stage_->update(delta_time);
+	if (home_hp_ <= 0)home_hp_ = 0;
 
 	//------------------------------------------------------------------
 	//

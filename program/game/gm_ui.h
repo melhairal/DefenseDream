@@ -30,7 +30,8 @@ public:
 	//éûä‘
 	int time_icon_ = 0;
 
-	// ==== ç¿ïW ====
+	// ========== ç¿ïW ==========
+	
 	//ãíì_HP
 	const int HOME_HP_X_ = DXE_WINDOW_WIDTH / 2;
 	const int HOME_HP_Y_ = DXE_WINDOW_HEIGHT * 0.1f;

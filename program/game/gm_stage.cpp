@@ -40,7 +40,9 @@ void Stage1::update(float delta_time) {
 		elapsed_ = 0;
 		time_--;
 	}
-
+	if (time_ <= 0) {
+		time_ = 0;
+	}
 	if (time_ % 6 == 1 && elapsed_ == 0) {
 		RandomPop(3);
 	}

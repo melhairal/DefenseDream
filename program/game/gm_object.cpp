@@ -177,6 +177,7 @@ void Player::update(float delta_time) {
 		sprite_->pos_ += -looking_ * 6.0f;
 	}
 	if (damaged_t_ <= 0) damaged_t_ = 0;
+	if (hp_ <= 0)hp_ = 0;
 	prev_hp_ = hp_;
 
 	//–‚—Í‚ÌŽ©“®‰ñ•œ
