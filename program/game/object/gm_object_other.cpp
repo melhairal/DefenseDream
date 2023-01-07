@@ -13,10 +13,13 @@ Cloud::Cloud(ScenePlay* scene) {
 }
 
 void Cloud::update(float delta_time) {
+	//í‚ÉƒJƒƒ‰‚ðŒü‚­
 	tnl::Vector3 dir;
 	dir = mesh_->pos_ - scene_->camera_->pos_;
 	dir.normalize();
 	mesh_->rot_q_.slerp(tnl::Quaternion::LookAtAxisY(mesh_->pos_, mesh_->pos_ + dir), 0.3f);
+
+	hitWall(scene_->player_); //“–‚½‚è”»’è
 }
 
 Home::Home(ScenePlay* scene) {
@@ -29,8 +32,11 @@ Home::Home(ScenePlay* scene) {
 }
 
 void Home::update(float delta_time) {
+	//í‚ÉƒJƒƒ‰‚ðŒü‚­
 	tnl::Vector3 dir;
 	dir = mesh_->pos_ - scene_->camera_->pos_;
 	dir.normalize();
 	mesh_->rot_q_.slerp(tnl::Quaternion::LookAtAxisY(mesh_->pos_, mesh_->pos_ + dir), 0.3f);
+
+	hitWall(scene_->player_); //“–‚½‚è”»’è
 }

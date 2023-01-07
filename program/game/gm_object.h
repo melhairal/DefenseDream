@@ -10,6 +10,13 @@ public:
 	virtual ~GameObj();
 	virtual void update(float delta_time) {}
 
+	// =========== 関数 ==========
+
+	void updateSprite(float delta_time, float w, float h); //スプライトのアップデート
+	void hitWall(GameObj* object); //壁判定
+
+	// ========== 基本ステータス ==========
+
 	enum {
 		eNone = -1,
 		ePlayer,
@@ -23,8 +30,8 @@ public:
 	int tag_ = GameObj::eNone; //オブジェクトを識別するタグ
 	int id_ = -1; //同じタグ内での識別用の番号
 
-	dxe::Mesh* mesh_ = nullptr;
-	AnimSprite3D* sprite_ = nullptr;
+	dxe::Mesh* mesh_ = nullptr; //実体(メッシュ)
+	AnimSprite3D* sprite_ = nullptr; //実体(スプライト)
 
 	bool moving_ = true; //動作フラグ
 	bool alive_ = true; //生存フラグ

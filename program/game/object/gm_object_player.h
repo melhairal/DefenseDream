@@ -10,6 +10,18 @@ public:
 	~Player() {}
 	void update(float delta_time) override;
 
+	// =========== 関数 ==========
+
+	void playerMove(); //移動制御
+	void updateMouse(float delta_time); //マウス操作制御
+	void comboLeft(); //コンボ左クリック
+	void comboRight(); //コンボ右クリック
+	void comboShiht(); //コンボシフトキー
+	void recievDamage(); //被弾モーション
+	void healMagic(); //魔力自然回復
+
+	// ========== 基本ステータス ==========
+
 	const float SPRITE_W_ = 32.0f; //画像サイズ
 	const float SPRITE_H_ = 48.0f;
 	const float SIZE_ = 30.0f; //当たり判定の大きさ
