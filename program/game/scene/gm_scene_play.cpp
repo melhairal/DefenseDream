@@ -326,6 +326,17 @@ void Player::update(float delta_time) {
 		comboM_timer_ = 0;
 		comboM_counter_ = 2;
 	}
+	
+	//”í’e
+	if (prev_hp_ != hp_) {
+		damaged_t_ = 12;
+	}
+	if (damaged_t_ > 0) {
+		damaged_t_--;
+		sprite_->pos_ += -looking_ * 6.0f;
+	}
+	if (damaged_t_ <= 0) damaged_t_ = 0;
+	prev_hp_ = hp_;
 
 	//–‚—Í‚ÌŽ©“®‰ñ•œ
 	if (scene_->magic_ == scene_->magic_prev_) {

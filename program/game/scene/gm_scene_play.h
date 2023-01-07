@@ -74,7 +74,7 @@ public:
 	float size_ = 0.0f; //当たり判定用サイズ
 	int hp_max_ = 100; //最大HP
 	int hp_ = 100; //HP
-	int prev_hp_ = 0; //被弾判定用
+	int prev_hp_ = hp_; //被弾判定用
 
 	tnl::Vector3 looking_ = { 1,0,0 }; //見ている方向のベクトル
 	tnl::Vector3 prev_pos_ = { 0,0,0 }; //補正用座標
@@ -92,13 +92,14 @@ public:
 	const float SIZE_ = 30.0f; //当たり判定の大きさ
 	const float SPEED_ = 3.0f; //移動速度
 	const float SPRINT_ = 5.0f; //ダッシュ速度
+	const int COMBO_RECEPTION_ = 100; //コンボ受付猶予
+	const int COMBO_INTERVAL_ = 40; //コンボ間隔
 
 	int combo_counter_ = 0; //今のコンボの段階(遠隔)
 	int combo_timer_ = 0; //コンボ受付時間
 	int comboM_counter_ = 0; //今のコンボの段階(近接)
 	int comboM_timer_ = 0; //コンボ受付時間
-	const int COMBO_RECEPTION_ = 100; //コンボ受付猶予
-	const int COMBO_INTERVAL_ = 40; //コンボ間隔
+	int damaged_t_ = 0; //ノックバックモーション計測用
 };
 
 //敵(メッシュ)
@@ -126,7 +127,7 @@ public:
 	const float SIZE_ = 30.0f; //当たり判定の大きさ
 	const float SPEED_ = 2.0f; //移動速度
 	const float DIR_ = 50.0f; //停止距離
-	int damaged_t_ = 0;
+	int damaged_t_ = 0; //ノックバックモーション計測用
 	int elapsed_ = 0; //時間計測用
 	const int INTERVAL_ = 60; //攻撃間隔
 
@@ -304,7 +305,7 @@ public:
 	void initialize(ScenePlay* scene, GameObj* object, float size, float w, float h, float d); //基本情報の設定
 	void Attack(int damage, GameObj* player, GameObj* home); //ダメージ判定用関数
 
-	GameObj* target_; //攻撃対象
+	GameObj* target_ = nullptr; //攻撃対象
 	int elapsed_ = 0; //時間計測
 	int frame_ = 0; //現在のアニメーションフレーム
 };
@@ -401,5 +402,4 @@ public:
 	void update(float delta_time) override;
 
 	const int ENEMY_NUM_ = 30; //出現する敵の数
-
 };
