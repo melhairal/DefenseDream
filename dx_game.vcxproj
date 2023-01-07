@@ -37,6 +37,7 @@
     <ClCompile Include="program\game\gm_camera.cpp" />
     <ClCompile Include="program\game\gm_main.cpp" />
     <ClCompile Include="program\game\gm_manager.cpp" />
+    <ClCompile Include="program\game\gm_object.cpp" />
     <ClCompile Include="program\game\model\gm_airplane.cpp" />
     <ClCompile Include="program\game\model\gm_anim_sprite3d.cpp" />
     <ClCompile Include="program\game\model\gm_model.cpp" />
@@ -66,6 +67,7 @@
     <ClInclude Include="program\game\gm_camera.h" />
     <ClInclude Include="program\game\gm_main.h" />
     <ClInclude Include="program\game\gm_manager.h" />
+    <ClInclude Include="program\game\gm_object.h" />
     <ClInclude Include="program\game\model\gm_airplane.h" />
     <ClInclude Include="program\game\model\gm_anim_sprite3d.h" />
     <ClInclude Include="program\game\model\gm_model.h" />
