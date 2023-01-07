@@ -24,7 +24,7 @@ public:
 	void update(float delta_time) override;
 	void render() override;
 
-	const float FIELD_H_ = -30; //地面の高さ座標
+	const float FIELD_H_ = -30.0f; //地面の高さ座標
 	const int FIELD_R_ = 1000; //フィールドの半径
 	const int CLOUD_DENSITY_ = 200; //雲の密度
 
@@ -53,9 +53,6 @@ public:
 	}
 	virtual void update(float delta_time) {}
 
-	void Attack(int damage); //ダメージ判定用関数
-	void EnemyAttack(int damage, GameObj* player, GameObj* home);
-
 	enum {
 		eNone = -1,
 		ePlayer,
@@ -74,71 +71,61 @@ public:
 
 	bool moving_ = true; //動作フラグ
 	bool alive_ = true; //生存フラグ
-	float size_ = 0; //当たり判定用サイズ
-	tnl::Vector3 prev_pos_ = { 0,0,0 }; //補正用座標
+	float size_ = 0.0f; //当たり判定用サイズ
 	int hp_max_ = 100; //最大HP
 	int hp_ = 100; //HP
+	int prev_hp_ = 0; //被弾判定用
+
 	tnl::Vector3 looking_ = { 1,0,0 }; //見ている方向のベクトル
+	tnl::Vector3 prev_pos_ = { 0,0,0 }; //補正用座標
 };
 
+//プレイヤー
 class Player :public GameObj {
 public:
 	Player(ScenePlay* scene);
 	~Player() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 32; //画像サイズ
-	const float SPRITE_H_ = 48;
-	const float SIZE_ = 30; //当たり判定の大きさ
-	const float SPEED_ = 3;
-	const float SPRINT_ = 5;
+	const float SPRITE_W_ = 32.0f; //画像サイズ
+	const float SPRITE_H_ = 48.0f;
+	const float SIZE_ = 30.0f; //当たり判定の大きさ
+	const float SPEED_ = 3.0f; //移動速度
+	const float SPRINT_ = 5.0f; //ダッシュ速度
 
-	int ballet_interval_ = 0; //弾の発射間隔
-
-	int combo_counter_ = 0; //今のコンボの段階
+	int combo_counter_ = 0; //今のコンボの段階(遠隔)
 	int combo_timer_ = 0; //コンボ受付時間
-	int comboM_counter_ = 0; //今のコンボの段階
+	int comboM_counter_ = 0; //今のコンボの段階(近接)
 	int comboM_timer_ = 0; //コンボ受付時間
 	const int COMBO_RECEPTION_ = 100; //コンボ受付猶予
 	const int COMBO_INTERVAL_ = 40; //コンボ間隔
 };
 
-class Bullet :public GameObj {
-public:
-	Bullet(const tnl::Vector3& pos, const tnl::Vector3& dir);
-	~Bullet() {}
-	void update(float delta_time) override;
-
-	const float SIZE_ = 5; //当たり判定の大きさ
-	const float SPEED_ = 4; //弾速度
-	const float RANGE_ = 300; //射程距離
-	float distance_ = 0; //どのくらい飛んだか
-};
-
+//敵(メッシュ)
 class Enemy :public GameObj {
 public:
 	Enemy(ScenePlay* scene, const tnl::Vector3& pos);
 	~Enemy() {}
 	void update(float delta_time) override;
 
-	const float SIZE_ = 30; //当たり判定の大きさ
-	const float SPEED_ = 2; //移動速度
+	const float SIZE_ = 30.0f; //当たり判定の大きさ
+	const float SPEED_ = 2.0f; //移動速度
 
 	GameObj* target_ = nullptr;
 };
 
+//敵(スプライト)
 class EnemySprite :public GameObj {
 public:
 	EnemySprite(ScenePlay* scene, const tnl::Vector3& pos);
 	~EnemySprite() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 32; //画像サイズ
-	const float SPRITE_H_ = 48;
-	const float SIZE_ = 30; //当たり判定の大きさ
-	const float SPEED_ = 2; //移動速度
-	const float DIR_ = 50; //停止距離
-	int prev_hp_ = 0; //被弾判定用
+	const float SPRITE_W_ = 32.0f; //画像サイズ
+	const float SPRITE_H_ = 48.0f;
+	const float SIZE_ = 30.0f; //当たり判定の大きさ
+	const float SPEED_ = 2.0f; //移動速度
+	const float DIR_ = 50.0f; //停止距離
 	int damaged_t_ = 0;
 	int elapsed_ = 0; //時間計測用
 	const int INTERVAL_ = 60; //攻撃間隔
@@ -146,183 +133,195 @@ public:
 	GameObj* target_ = nullptr;
 };
 
+//雲(外周)
 class Cloud :public GameObj {
 public:
 	Cloud(ScenePlay* scene);
 	~Cloud(){}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 40; //画像サイズ
-	const float SPRITE_H_ = 25;
-	const float SIZE_ = 30; //当たり判定の大きさ
+	const float SPRITE_W_ = 40.0f; //画像サイズ
+	const float SPRITE_H_ = 25.0f;
+	const float SIZE_ = 30.0f; //当たり判定の大きさ
 };
 
+//拠点
 class Home :public GameObj {
 public:
 	Home(ScenePlay* scene);
 	~Home() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 50; //画像サイズ
-	const float SPRITE_H_ = 50;
-	const float SIZE_ = 50; //当たり判定の大きさ
+	const float SPRITE_W_ = 50.0f; //画像サイズ
+	const float SPRITE_H_ = 50.0f;
+	const float SIZE_ = 50.0f; //当たり判定の大きさ
+};
+
+// ========== 攻撃(コンボ) ===========
+class PlayerComboBase :public GameObj {
+public:
+	PlayerComboBase(){}
+	virtual ~PlayerComboBase(){}
+	virtual void update(float delta_time) {}
+
+	void initialize(ScenePlay* scene, int magic, float size, float w, float h, float d); //基本情報の設定
+	void Attack(int damage); //ダメージ判定用関数
+
+	int elapsed_ = 0;
+	int frame_ = 0;
 };
 
 //範囲コンボ
-class Combo1 :public GameObj {
+class Combo1 :public PlayerComboBase {
 public:
 	Combo1(ScenePlay* scene);
 	~Combo1(){}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 120; //画像サイズ
-	const float SPRITE_H_ = 120;
-	const float DIS_ = 70; //プレイヤーからの生成位置
-	const float SIZE_ = 80; //当たり判定の大きさ
+	const float SPRITE_W_ = 120.0f; //画像サイズ
+	const float SPRITE_H_ = 120.0f;
+	const float DIS_ = 70.0f; //プレイヤーからの生成位置
+	const float SIZE_ = 80.0f; //当たり判定の大きさ
 	const int DAMAGE_ = 20; //攻撃力
 	const int MAGIC_ = 20; //消費魔力
 	const int FRAME_TIME_ = 4; //1フレームの再生時間
-	int elapsed_ = 0;
-	int frame_ = 0;
 };
 
-class Combo2 :public GameObj {
+class Combo2 :public PlayerComboBase {
 public:
 	Combo2(ScenePlay* scene);
 	~Combo2() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 120; //画像サイズ
-	const float SPRITE_H_ = 120;
-	const float DIS_ = 70; //プレイヤーからの生成位置
-	const float SIZE_ = 80; //当たり判定の大きさ
+	const float SPRITE_W_ = 120.0f; //画像サイズ
+	const float SPRITE_H_ = 120.0f;
+	const float DIS_ = 70.0f; //プレイヤーからの生成位置
+	const float SIZE_ = 80.0f; //当たり判定の大きさ
 	const int DAMAGE_ = 40; //攻撃力
 	const int MAGIC_ = 30; //消費魔力
 	const int FRAME_TIME_ = 4; //1フレームの再生時間
-	int elapsed_ = 0;
-	int frame_ = 0;
 };
 
-class Combo3 :public GameObj {
+class Combo3 :public PlayerComboBase {
 public:
 	Combo3(ScenePlay* scene);
 	~Combo3() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 360; //画像サイズ
-	const float SPRITE_H_ = 120;
-	const float DIS_ = 70; //プレイヤーからの生成位置
-	const float SIZE_ = 120; //当たり判定の大きさ
+	const float SPRITE_W_ = 360.0f; //画像サイズ
+	const float SPRITE_H_ = 120.0f;
+	const float DIS_ = 70.0f; //プレイヤーからの生成位置
+	const float SIZE_ = 120.0f; //当たり判定の大きさ
 	const int DAMAGE_ = 60; //攻撃力
 	const int MAGIC_ = 40; //消費魔力
 	const int FRAME_TIME_ = 4; //1フレームの再生時間
-	int elapsed_ = 0;
-	int frame_ = 0;
 };
 
 //近接コンボ
-class ComboM1 :public GameObj {
+class ComboM1 :public PlayerComboBase {
 public:
 	ComboM1(ScenePlay* scene);
 	~ComboM1() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 180; //画像サイズ
-	const float SPRITE_H_ = 120;
-	const float DIS_ = 40; //プレイヤーからの生成位置
-	const float SIZE_ = 40; //当たり判定の大きさ
+	const float SPRITE_W_ = 180.0f; //画像サイズ
+	const float SPRITE_H_ = 120.0f;
+	const float DIS_ = 40.0f; //プレイヤーからの生成位置
+	const float SIZE_ = 40.0f; //当たり判定の大きさ
 	const int DAMAGE_ = 20; //攻撃力
 	const int MAGIC_ = 10; //消費魔力
 	const int FRAME_TIME_ = 1; //1フレームの再生時間
-	int elapsed_ = 0;
-	int frame_ = 0;
 };
 
-class ComboM2 :public GameObj {
+class ComboM2 :public PlayerComboBase {
 public:
 	ComboM2(ScenePlay* scene);
 	~ComboM2() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 180; //画像サイズ
-	const float SPRITE_H_ = 120;
-	const float DIS_ = 40; //プレイヤーからの生成位置
-	const float SIZE_ = 40; //当たり判定の大きさ
+	const float SPRITE_W_ = 180.0f; //画像サイズ
+	const float SPRITE_H_ = 120.0f;
+	const float DIS_ = 40.0f; //プレイヤーからの生成位置
+	const float SIZE_ = 40.0f; //当たり判定の大きさ
 	const int DAMAGE_ = 30; //攻撃力
 	const int MAGIC_ = 20; //消費魔力
 	const int FRAME_TIME_ = 1; //1フレームの再生時間
-	int elapsed_ = 0;
-	int frame_ = 0;
 };
 
-class ComboM3 :public GameObj {
+class ComboM3 :public PlayerComboBase {
 public:
 	ComboM3(ScenePlay* scene);
 	~ComboM3() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 180; //画像サイズ
-	const float SPRITE_H_ = 120;
-	const float DIS_ = 40; //プレイヤーからの生成位置
-	const float SIZE_ = 40; //当たり判定の大きさ
+	const float SPRITE_W_ = 180.0f; //画像サイズ
+	const float SPRITE_H_ = 120.0f;
+	const float DIS_ = 40.0f; //プレイヤーからの生成位置
+	const float SIZE_ = 40.0f; //当たり判定の大きさ
 	const int DAMAGE_ = 20; //攻撃力
 	const int MAGIC_ = 20; //消費魔力
 	const int FRAME_TIME_ = 1; //1フレームの再生時間
-	int elapsed_ = 0;
-	int frame_ = 0;
 };
 
-class ComboM4 :public GameObj {
+class ComboM4 :public PlayerComboBase {
 public:
 	ComboM4(ScenePlay* scene);
 	~ComboM4() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 160; //画像サイズ
-	const float SPRITE_H_ = 120;
-	const float DIS_ = 40; //プレイヤーからの生成位置
-	const float SIZE_ = 40; //当たり判定の大きさ
+	const float SPRITE_W_ = 160.0f; //画像サイズ
+	const float SPRITE_H_ = 120.0f;
+	const float DIS_ = 40.0f; //プレイヤーからの生成位置
+	const float SIZE_ = 40.0f; //当たり判定の大きさ
 	const int DAMAGE_ = 20; //攻撃力
 	const int MAGIC_ = 40; //消費魔力
 	const int FRAME_TIME_ = 1; //1フレームの再生時間
-	int elapsed_ = 0;
-	int frame_ = 0;
 };
 
 //接近コンボ
-class ComboS1 :public GameObj {
+class ComboS1 :public PlayerComboBase {
 public:
 	ComboS1(ScenePlay* scene);
 	~ComboS1() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 320; //画像サイズ
-	const float SPRITE_H_ = 240;
-	const float DIS_ = 120; //プレイヤーからの生成位置
-	const float SIZE_ = 100; //当たり判定の大きさ
+	const float SPRITE_W_ = 320.0f; //画像サイズ
+	const float SPRITE_H_ = 240.0f;
+	const float DIS_ = 120.0f; //プレイヤーからの生成位置
+	const float SIZE_ = 100.0f; //当たり判定の大きさ
 	const int DAMAGE_ = 60; //攻撃力
 	const int MAGIC_ = 80; //消費魔力
 	const int FRAME_TIME_ = 1; //1フレームの再生時間
-	int elapsed_ = 0;
-	int frame_ = 0;
+};
+
+// ========== 敵の攻撃 ==========
+class EnemyComboBase :public GameObj {
+public:
+	EnemyComboBase() {}
+	virtual ~EnemyComboBase() {}
+	virtual void update(float delta_time) {}
+
+	void initialize(ScenePlay* scene, GameObj* object, float size, float w, float h, float d); //基本情報の設定
+	void Attack(int damage, GameObj* player, GameObj* home); //ダメージ判定用関数
+
+	GameObj* target_; //攻撃対象
+	int elapsed_ = 0; //時間計測
+	int frame_ = 0; //現在のアニメーションフレーム
 };
 
 //敵ひっかき攻撃
-class ComboE1 :public GameObj {
+class ComboE1 :public EnemyComboBase {
 public:
 	ComboE1(ScenePlay* scene, GameObj* object);
 	~ComboE1() {}
 	void update(float delta_time) override;
 
-	const float SPRITE_W_ = 80; //画像サイズ
-	const float SPRITE_H_ = 80;
-	GameObj* target_;
-	const float DIS_ = 40; //スプライトからの生成位置
-	const float SIZE_ = 40; //当たり判定の大きさ
+	const float SPRITE_W_ = 80.0f; //画像サイズ
+	const float SPRITE_H_ = 80.0f;
+	const float DIS_ = 40.0f; //スプライトからの生成位置
+	const float SIZE_ = 40.0f; //当たり判定の大きさ
 	const int DAMAGE_ = 10; //攻撃力
 	const int FRAME_TIME_ = 1; //1フレームの再生時間
-	int elapsed_ = 0;
-	int frame_ = 0;
 };
 
 //------------------------------------------------------------------
