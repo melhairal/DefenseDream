@@ -130,29 +130,7 @@ void ScenePlay::update(float delta_time)
 
 	//敵生成テスト用
 	if (tnl::Input::IsKeyDownTrigger(eKeys::KB_Z)) {
-		objects_.emplace_back(new Enemy(this, { 0,0,0 }));
-	}
-	if (tnl::Input::IsKeyDownTrigger(eKeys::KB_X)) {
 		objects_.emplace_back(new EnemySprite(this, { 0,0,0 }));
-	}
-	//敵とオブジェクトの衝突判定
-	for (auto enemy : objects_) {
-		if (enemy->tag_ != GameObj::eEnemy) continue;
-		for (auto bullet : objects_) {
-			if (bullet->tag_ != GameObj::eBullet) continue;
-			if (enemy->mesh_ != nullptr) {
-				if (tnl::IsIntersectSphere(enemy->mesh_->pos_, enemy->size_, bullet->mesh_->pos_, bullet->size_)) {
-					enemy->hp_ -= 30;
-					bullet->alive_ = false;
-				}
-			}
-			if (enemy->sprite_ != nullptr) {
-				if (tnl::IsIntersectSphere(enemy->sprite_->pos_, enemy->size_, bullet->mesh_->pos_, bullet->size_)) {
-					enemy->hp_ -= 30;
-					bullet->alive_ = false;
-				}
-			}
-		}
 	}
 
 	//シーン切り替え
@@ -271,6 +249,7 @@ void Player::update(float delta_time) {
 	//
 	
 	//左クリックで弾を発射
+	/*
 	if (tnl::Input::IsMouseTrigger(eMouseTrigger::IN_LEFT)) {
 		ballet_interval_ = 0;
 		scene_->objects_.emplace_back(new Bullet(sprite_->pos_, looking_));
@@ -282,9 +261,10 @@ void Player::update(float delta_time) {
 			scene_->objects_.emplace_back(new Bullet(sprite_->pos_, looking_));
 		}
 	}
+	*/
 
 	//コンボ（遠隔）
-	if (tnl::Input::IsKeyDownTrigger(eKeys::KB_C) && comboM_counter_ == 0) {
+	if (tnl::Input::IsMouseTrigger(eMouseTrigger::IN_RIGHT) && comboM_counter_ == 0) {
 		switch (combo_counter_) {
 		case 0:
 			scene_->objects_.emplace_back(new Combo1(scene_));
@@ -316,7 +296,7 @@ void Player::update(float delta_time) {
 	}
 
 	//コンボ（近接）
-	if (tnl::Input::IsKeyDownTrigger(eKeys::KB_V) && combo_counter_ == 0) {
+	if (tnl::Input::IsMouseTrigger(eMouseTrigger::IN_LEFT) && combo_counter_ == 0) {
 		switch (comboM_counter_) {
 		case 0:
 			if (tnl::Input::IsKeyDown(eKeys::KB_LSHIFT)) break;
@@ -355,7 +335,7 @@ void Player::update(float delta_time) {
 	}
 
 	//接近攻撃
-	if (tnl::Input::IsKeyDownTrigger(eKeys::KB_V) && tnl::Input::IsKeyDown(eKeys::KB_LSHIFT) 
+	if (tnl::Input::IsMouseTrigger(eMouseTrigger::IN_LEFT) && tnl::Input::IsKeyDown(eKeys::KB_LSHIFT)
 		&& combo_counter_ == 0 && comboM_counter_ == 0) {
 		scene_->objects_.emplace_back(new ComboS1(scene_));
 		comboM_timer_ = 0;
@@ -447,31 +427,36 @@ void EnemySprite::update(float delta_time) {
 	sprite_->setCurrentAnim(anim_names[t]);
 	//ターゲットを追いかける
 	if (hp_ != hp_max_) target_ = scene_->player_; //ターゲットの切り替え
-	tnl::Vector3 dir;
-	if (target_ == scene_->player_) dir = scene_->player_->sprite_->pos_ - sprite_->pos_;
-	if (target_ == scene_->home_) dir = scene_->home_->mesh_->pos_ - sprite_->pos_;
-	if (dir.length() > 20) {
-		dir.normalize();
-		sprite_->pos_ += dir * SPEED_;
-		sprite_->rot_.slerp(tnl::Quaternion::LookAtAxisY(sprite_->pos_, sprite_->pos_ + dir), 0.3f);
+	if (target_ == scene_->player_) looking_ = scene_->player_->sprite_->pos_ - sprite_->pos_;
+	if (target_ == scene_->home_) looking_ = scene_->home_->mesh_->pos_ - sprite_->pos_;
+	looking_.y = 0;
+	if (looking_.length() > DIR_) {
+		looking_.normalize();
+		sprite_->pos_ += looking_ * SPEED_;
+		sprite_->rot_.slerp(tnl::Quaternion::LookAtAxisY(sprite_->pos_, sprite_->pos_ + looking_), 0.3f);
 	}
 	else {
-		dir.normalize();
-		sprite_->rot_.slerp(tnl::Quaternion::LookAtAxisY(sprite_->pos_, sprite_->pos_ + dir), 0.3f);
+		looking_.normalize();
+		sprite_->rot_.slerp(tnl::Quaternion::LookAtAxisY(sprite_->pos_, sprite_->pos_ + looking_), 0.3f);
+		//攻撃
+		elapsed_++;
+		if (elapsed_ > INTERVAL_) {
+			elapsed_ = 0;
+			scene_->objects_.emplace_back(new ComboE1(scene_, this));
+		}
 	}
 	sprite_->update(delta_time);
-
-	looking_ = dir;
 	//被弾
 	if (prev_hp_ != hp_) {
 		damaged_t_ = 12;
 	}
 	if (damaged_t_ > 0) {
 		damaged_t_--;
-		sprite_->pos_ += -dir * 6.0f;
+		sprite_->pos_ += -looking_ * 6.0f;
 	}
 	if (damaged_t_ <= 0) damaged_t_ = 0;
 	prev_hp_ = hp_;
+
 	//HPが0になったら消える
 	if (hp_ <= 0) {
 		hp_ = 0;
@@ -537,6 +522,7 @@ Combo1::Combo1(ScenePlay* scene) {
 
 void Combo1::update(float delta_time) {
 	if (!alive_) return;
+	mesh_->pos_ += looking_ * 2.0f;
 	elapsed_++;
 	if (elapsed_ > FRAME_TIME_) {
 		elapsed_ = 0;
@@ -547,6 +533,7 @@ void Combo1::update(float delta_time) {
 			break;
 		case 2:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_003.png"));
+			Attack(DAMAGE_);
 			break;
 		case 3:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_004.png"));
@@ -556,7 +543,6 @@ void Combo1::update(float delta_time) {
 			break;
 		case 5:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_006.png"));
-			Attack(DAMAGE_);
 			break;
 		case 6:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/1/1_007.png"));
@@ -596,6 +582,7 @@ Combo2::Combo2(ScenePlay* scene) {
 
 void Combo2::update(float delta_time) {
 	if (!alive_) return;
+	mesh_->pos_ += looking_ * 2.0f;
 	elapsed_++;
 	if (elapsed_ > FRAME_TIME_) {
 		elapsed_ = 0;
@@ -609,6 +596,7 @@ void Combo2::update(float delta_time) {
 			break;
 		case 3:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/2/2_004.png"));
+			Attack(DAMAGE_);
 			break;
 		case 4:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/2/2_005.png"));
@@ -618,7 +606,6 @@ void Combo2::update(float delta_time) {
 			break;
 		case 6:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/2/2_007.png"));
-			Attack(DAMAGE_);
 			break;
 		case 7:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/2/2_008.png"));
@@ -661,6 +648,7 @@ Combo3::Combo3(ScenePlay* scene) {
 
 void Combo3::update(float delta_time) {
 	if (!alive_) return;
+	mesh_->pos_ += looking_ * 2.0f;
 	elapsed_++;
 	if (elapsed_ > FRAME_TIME_) {
 		elapsed_ = 0;
@@ -680,13 +668,13 @@ void Combo3::update(float delta_time) {
 			break;
 		case 5:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/3/3_006.png"));
+			Attack(DAMAGE_);
 			break;
 		case 6:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/3/3_007.png"));
 			break;
 		case 7:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/3/3_008.png"));
-			Attack(DAMAGE_);
 			break;
 		case 8:
 			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/3/3_009.png"));
@@ -1174,6 +1162,65 @@ void ComboS1::update(float delta_time) {
 }
 
 
+//敵ひっかき攻撃
+ComboE1::ComboE1(ScenePlay* scene, GameObj* object) {
+	//基本パラメータ
+	scene_ = scene;
+	tag_ = GameObj::eEnemyAttack;
+	target_ = object;
+	size_ = SIZE_;
+	mesh_ = dxe::Mesh::CreatePlane({ SPRITE_W_, SPRITE_H_, 0 });
+	mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/e1/1_001.png"));
+
+	//座標・角度の設定
+	looking_ = target_->looking_;
+	mesh_->pos_ = target_->sprite_->pos_ + looking_ * DIS_;
+	float th = std::atan(looking_.x / looking_.z);
+	tnl::Vector3 qy = { looking_.x, 1, looking_.z };
+	tnl::Vector3 rot = -looking_.cross(qy);
+	if (rot.x == 0 && rot.y == 0 && rot.z == 0) {
+		rot = { 1,0,0 };
+	}
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis({ 0,0,1 }, tnl::ToRadian(180));
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis({ 0,1,0 }, th);
+	mesh_->rot_q_ *= tnl::Quaternion::RotationAxis(rot, tnl::ToRadian(90));
+};
+
+void ComboE1::update(float delta_time) {
+	elapsed_++;
+	if (elapsed_ > FRAME_TIME_) {
+		elapsed_ = 0;
+		frame_++;
+		switch (frame_) {
+		case 1:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/e1/1_002.png"));
+			EnemyAttack(DAMAGE_, scene_->player_, scene_->home_);
+			break;
+		case 2:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/e1/1_003.png"));
+			break;
+		case 3:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/e1/1_004.png"));
+			break;
+		case 4:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/e1/1_005.png"));
+			break;
+		case 5:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/e1/1_006.png"));
+			break;
+		case 6:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/e1/1_007.png"));
+			break;
+		case 7:
+			mesh_->setTexture(dxe::Texture::CreateFromFile("graphics/combo/e1/1_008.png"));
+			break;
+		case 8:
+			alive_ = false;
+			break;
+		}
+	}
+}
+
 void GameObj::Attack(int damage) {
 	for (auto enemy : scene_->objects_) {
 		if (enemy->tag_ != GameObj::eEnemy) continue;
@@ -1187,6 +1234,15 @@ void GameObj::Attack(int damage) {
 				enemy->hp_ -= damage;
 			}
 		}
+	}
+}
+
+void GameObj::EnemyAttack(int damage, GameObj* player, GameObj* home) {
+	if (tnl::IsIntersectSphere(player->sprite_->pos_, player->size_, mesh_->pos_, size_)) {
+		player->hp_ -= damage;
+	}
+	if (tnl::IsIntersectSphere(home->mesh_->pos_, home->size_, mesh_->pos_, size_)) {
+		scene_->home_hp_ -= damage;
 	}
 }
 
@@ -1268,7 +1324,7 @@ Stage1::Stage1(ScenePlay* scene) {
 	scene_ = scene;
 	stageNum_ = 1;
 	for (int i = 0; i < ENEMY_NUM_; ++i) {
-		scene_->objects_.emplace_back(new EnemySprite(scene_, { 0,-100,0 }))->moving_ = false;
+		scene_->objects_.emplace_back(new EnemySprite(scene_, { 0,-500,0 }))->moving_ = false;
 		scene_->objects_.back()->update(0);
 		enemyStock_++;
 		scene_->objects_.back()->id_ = enemyStock_;

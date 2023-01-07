@@ -54,6 +54,7 @@ public:
 	virtual void update(float delta_time) {}
 
 	void Attack(int damage); //ダメージ判定用関数
+	void EnemyAttack(int damage, GameObj* player, GameObj* home);
 
 	enum {
 		eNone = -1,
@@ -62,7 +63,8 @@ public:
 		eBullet,
 		eEnemy,
 		eCloud,
-		eAttack
+		eAttack,
+		eEnemyAttack
 	};
 	int tag_ = GameObj::eNone; //オブジェクトを識別するタグ
 	int id_ = -1; //同じタグ内での識別用の番号
@@ -76,7 +78,7 @@ public:
 	tnl::Vector3 prev_pos_ = { 0,0,0 }; //補正用座標
 	int hp_max_ = 100; //最大HP
 	int hp_ = 100; //HP
-	tnl::Vector3 looking_; //見ている方向のベクトル
+	tnl::Vector3 looking_ = { 1,0,0 }; //見ている方向のベクトル
 };
 
 class Player :public GameObj {
@@ -135,8 +137,11 @@ public:
 	const float SPRITE_H_ = 48;
 	const float SIZE_ = 30; //当たり判定の大きさ
 	const float SPEED_ = 2; //移動速度
+	const float DIR_ = 50; //停止距離
 	int prev_hp_ = 0; //被弾判定用
 	int damaged_t_ = 0;
+	int elapsed_ = 0; //時間計測用
+	const int INTERVAL_ = 60; //攻撃間隔
 
 	GameObj* target_ = nullptr;
 };
@@ -173,7 +178,7 @@ public:
 	const float SPRITE_W_ = 120; //画像サイズ
 	const float SPRITE_H_ = 120;
 	const float DIS_ = 70; //プレイヤーからの生成位置
-	const float SIZE_ = 50; //当たり判定の大きさ
+	const float SIZE_ = 80; //当たり判定の大きさ
 	const int DAMAGE_ = 20; //攻撃力
 	const int MAGIC_ = 20; //消費魔力
 	const int FRAME_TIME_ = 4; //1フレームの再生時間
@@ -190,7 +195,7 @@ public:
 	const float SPRITE_W_ = 120; //画像サイズ
 	const float SPRITE_H_ = 120;
 	const float DIS_ = 70; //プレイヤーからの生成位置
-	const float SIZE_ = 50; //当たり判定の大きさ
+	const float SIZE_ = 80; //当たり判定の大きさ
 	const int DAMAGE_ = 40; //攻撃力
 	const int MAGIC_ = 30; //消費魔力
 	const int FRAME_TIME_ = 4; //1フレームの再生時間
@@ -207,7 +212,7 @@ public:
 	const float SPRITE_W_ = 360; //画像サイズ
 	const float SPRITE_H_ = 120;
 	const float DIS_ = 70; //プレイヤーからの生成位置
-	const float SIZE_ = 100; //当たり判定の大きさ
+	const float SIZE_ = 120; //当たり判定の大きさ
 	const int DAMAGE_ = 60; //攻撃力
 	const int MAGIC_ = 40; //消費魔力
 	const int FRAME_TIME_ = 4; //1フレームの再生時間
@@ -297,6 +302,24 @@ public:
 	const float SIZE_ = 100; //当たり判定の大きさ
 	const int DAMAGE_ = 60; //攻撃力
 	const int MAGIC_ = 80; //消費魔力
+	const int FRAME_TIME_ = 1; //1フレームの再生時間
+	int elapsed_ = 0;
+	int frame_ = 0;
+};
+
+//敵ひっかき攻撃
+class ComboE1 :public GameObj {
+public:
+	ComboE1(ScenePlay* scene, GameObj* object);
+	~ComboE1() {}
+	void update(float delta_time) override;
+
+	const float SPRITE_W_ = 80; //画像サイズ
+	const float SPRITE_H_ = 80;
+	GameObj* target_;
+	const float DIS_ = 40; //スプライトからの生成位置
+	const float SIZE_ = 40; //当たり判定の大きさ
+	const int DAMAGE_ = 10; //攻撃力
 	const int FRAME_TIME_ = 1; //1フレームの再生時間
 	int elapsed_ = 0;
 	int frame_ = 0;
