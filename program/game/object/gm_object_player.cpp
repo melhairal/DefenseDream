@@ -62,7 +62,7 @@ void Player::update(float delta_time) {
 	//
 	
 	//被弾
-	recievDamage();
+	recievDamage(KNOCK_BACK_, KNOCK_BACK_TIMER_, knock_back_counter_);
 
 	//魔力の自動回復
 	healMagic();
@@ -234,26 +234,6 @@ void Player::comboShiht() {
 		comboM_timer_ = 0;
 		comboM_counter_ = 2;
 	}
-}
-
-void Player::recievDamage() {
-	//HPが減ったとき
-	if (prev_hp_ > hp_) {
-		//カウンターをセット
-		damaged_t_ = 12;
-	}
-
-	//カウンターの秒数分のけぞる
-	if (damaged_t_ > 0) {
-		damaged_t_--;
-		sprite_->pos_ += -looking_ * 6.0f;
-	}
-
-	//hpの上限下限
-	hp_ = std::clamp(hp_, 0, hp_max_);
-
-	//hp状態の記憶
-	prev_hp_ = hp_;
 }
 
 void Player::healMagic() {

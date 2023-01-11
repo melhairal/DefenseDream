@@ -5,10 +5,13 @@
 
 void PlayerComboBase::initialize(ScenePlay* scene, int magic, float size, float w, float h, float d) {
 	scene_ = scene;
+
+	//魔力が足りるかどうか
 	if (scene_->magic_ < magic) {
 		alive_ = false;
 		return;
 	}
+
 	//基本パラメータ
 	tag_ = GameObj::eAttack;
 	size_ = size;

@@ -13,6 +13,7 @@ public:
 	// =========== 関数 ==========
 
 	void updateSprite(float delta_time, float w, float h); //スプライトのアップデート
+	void recievDamage(float power, int timer, int& counter); //被弾モーション
 	void hitWall(GameObj* object); //壁判定
 
 	// ========== 基本ステータス ==========

@@ -17,7 +17,6 @@ public:
 	void comboLeft(); //コンボ左クリック
 	void comboRight(); //コンボ右クリック
 	void comboShiht(); //コンボシフトキー
-	void recievDamage(); //被弾モーション
 	void healMagic(); //魔力自然回復
 
 	// ========== 基本ステータス ==========
@@ -29,10 +28,12 @@ public:
 	const float SPRINT_ = 5.0f; //ダッシュ速度
 	const int COMBO_RECEPTION_ = 100; //コンボ受付猶予
 	const int COMBO_INTERVAL_ = 40; //コンボ間隔
+	const float KNOCK_BACK_ = 6.0f; //ノックバック力
+	const int KNOCK_BACK_TIMER_ = 12; //ノックバック時間
 
 	int combo_counter_ = 0; //今のコンボの段階(遠隔)
 	int combo_timer_ = 0; //コンボ受付時間
 	int comboM_counter_ = 0; //今のコンボの段階(近接)
 	int comboM_timer_ = 0; //コンボ受付時間
-	int damaged_t_ = 0; //ノックバックモーション計測用
+	int knock_back_counter_ = 0; //ノックバックモーション計測用
 };

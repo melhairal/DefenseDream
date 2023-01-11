@@ -9,10 +9,14 @@ public:
 	virtual ~PlayerComboBase() {}
 	virtual void update(float delta_time) {}
 
+	// =========== 関数 ==========
+
 	void initialize(ScenePlay* scene, int magic, float size, float w, float h, float d); //基本情報の設定
 	virtual void getImage() {} //アニメーション画像セット
 	void animation(int frame_time); //アニメーションの更新
 	void Attack(int damage); //ダメージ判定用関数
+
+	// ========== 基本ステータス ==========
 
 	int elapsed_ = 0;
 	int frame_ = 0;
@@ -328,10 +332,14 @@ public:
 	virtual ~EnemyComboBase() {}
 	virtual void update(float delta_time) {}
 
+	// =========== 関数 ==========
+
 	void initialize(ScenePlay* scene, GameObj* object, float size, float w, float h, float d); //基本情報の設定
 	virtual void getImage() {} //アニメーション画像セット
 	void animation(int frame_time); //アニメーションの更新
 	void Attack(int damage, GameObj* player, GameObj* home); //ダメージ判定用関数
+
+	// ========== 基本ステータス ==========
 
 	GameObj* target_ = nullptr; //攻撃対象
 	int elapsed_ = 0; //時間計測

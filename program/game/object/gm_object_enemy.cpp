@@ -42,27 +42,41 @@ EnemySprite::EnemySprite(ScenePlay* scene, const tnl::Vector3& pos) {
 
 void EnemySprite::update(float delta_time) {
 	//アニメーション制御
-	int t = tnl::GetXzRegionPointAndOBB(
-		scene_->camera_->pos_
-		, sprite_->pos_
-		, { SPRITE_W_, SPRITE_H_, SPRITE_W_ }
-	, sprite_->rot_);
+	updateSprite(delta_time, SPRITE_W_, SPRITE_H_);
 
-	std::string anim_names[4] = {
-		"walk_back", "walk_right", "walk_front", "walk_left"
-	};
-	sprite_->setCurrentAnim(anim_names[t]);
-	//ターゲットを追いかける
-	if (hp_ != hp_max_) target_ = scene_->player_; //ターゲットの切り替え
+	//ターゲットの切り替え
+	if (hp_ != hp_max_) target_ = scene_->player_;
+
+	//基本動作(移動・攻撃)
+	enemyMove(delta_time);
+
+	//スプライト更新
+	sprite_->update(delta_time);
+
+	//被弾
+	recievDamage(KNOCK_BACK_, KNOCK_BACK_TIMER_, knock_back_counter_);
+
+	//HPが0になったら消える
+	if (hp_ <= 0) {
+		hp_ = 0;
+		alive_ = false;
+	}
+}
+
+void EnemySprite::enemyMove(float delta_time) {
+	//ターゲットの方を向く
 	if (target_ == scene_->player_) looking_ = scene_->player_->sprite_->pos_ - sprite_->pos_;
 	if (target_ == scene_->home_) looking_ = scene_->home_->mesh_->pos_ - sprite_->pos_;
+
+	//y方向を無視
 	looking_.y = 0;
-	if (looking_.length() > DIR_) {
+
+	if (looking_.length() > DIR_) { //距離が遠いとき、プレイヤーに向かって移動する
 		looking_.normalize();
 		sprite_->pos_ += looking_ * SPEED_;
 		sprite_->rot_.slerp(tnl::Quaternion::LookAtAxisY(sprite_->pos_, sprite_->pos_ + looking_), 0.3f);
 	}
-	else {
+	else { //近いとき、プレイヤーの方を向きながら攻撃する
 		looking_.normalize();
 		sprite_->rot_.slerp(tnl::Quaternion::LookAtAxisY(sprite_->pos_, sprite_->pos_ + looking_), 0.3f);
 		//攻撃
@@ -71,22 +85,5 @@ void EnemySprite::update(float delta_time) {
 			elapsed_ = 0;
 			scene_->objects_.emplace_back(new ComboE1(scene_, this));
 		}
-	}
-	sprite_->update(delta_time);
-	//被弾
-	if (prev_hp_ != hp_) {
-		damaged_t_ = 12;
-	}
-	if (damaged_t_ > 0) {
-		damaged_t_--;
-		sprite_->pos_ += -looking_ * 6.0f;
-	}
-	if (damaged_t_ <= 0) damaged_t_ = 0;
-	prev_hp_ = hp_;
-
-	//HPが0になったら消える
-	if (hp_ <= 0) {
-		hp_ = 0;
-		alive_ = false;
 	}
 }
